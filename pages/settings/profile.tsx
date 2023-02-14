@@ -2,6 +2,7 @@ import React, { useRef, useContext, useEffect } from 'react';
 import Back from '../../components/back';
 import AppContext from '../../context/app';
 import { PersonalDetails } from '../../interfaces/profile-interface';
+import { get, put } from '../../functions/fetch';
 
 export default function Profile() {
   const context = useContext(AppContext);
@@ -13,10 +14,7 @@ export default function Profile() {
     try {
       context.loading.dispatch({type: 'ON'});
       const userId = localStorage.getItem('user_id');
-      const getProfile = await fetch(`${process.env.HOST}/users/${userId}`, {
-        headers: { 'Accept': 'application/json' }
-      });
-      const data: PersonalDetails = await getProfile.json();
+      const data: PersonalDetails = await get(`/users/${userId}`);
       name.current.value = data.name;
       email.current.value = data.email;
       contactNo.current.value = data.contact_no;
@@ -37,14 +35,7 @@ export default function Profile() {
         contact_no: contactNo.current.value,
       };
       const userId = localStorage.getItem('user_id');
-      await fetch(`${process.env.HOST}/users/${userId}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      await put(`/users/${userId}`, data);
       context.loading.dispatch({type: 'OFF'});
     } catch (err) {
       context.loading.dispatch({type: 'OFF'});

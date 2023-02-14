@@ -2,14 +2,30 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
+import { get } from '../functions/fetch';
+
+interface airtimeStatus {
+  active: boolean;
+  expired_date: string | null;
+}
 
 export default function Home({children}) {
 
   const router = useRouter();
-  const [coin, setCoin] = useState<number>(0);
+  const [airtimeStatus, setAirtimeStatus] = useState<airtimeStatus>({active: false, expired_date: null});
+
+  const getVendor = async (userId: string) => {
+    try {
+      const vendor = await get(`/vendors/user/${userId}`);
+      setAirtimeStatus(vendor.airtime_status);
+    } catch (err) {
+      console.log('error = ', await err.json());
+    }
+  }
 
   useEffect(() => {
     const userId = localStorage.getItem('user_id');
+    getVendor(userId);
     if (!userId) {
       router.push('/login');
     }
@@ -26,11 +42,12 @@ export default function Home({children}) {
           </div>
           {/* #logo */}
 
-          <Link href="/coin-topup" id="coin" className="flex items-center ml-1 bg-white shadow-normal px-[.5em] py-[.3em] rounded-full">
-            <Image className="w-[1.1em]" src="/coin.svg" alt="coin" width={18} height={18}/>
-            <p className="ml-[.3em] text-xs">{coin}</p>
+          <Link href="/airtime" id="airtime-status" className="ml-1 bg-white shadow-normal px-1 py-[.5em] rounded-xl">
+            <h4 className="text-sm text-primary">{airtimeStatus.active ? 'Active' : 'Inactive'}</h4>
+            <p className="text-xs">Expired on {airtimeStatus.expired_date}</p>
           </Link>
-          {/* #coin */}
+          {/* #airtime-status */}
+
         </div>
         {/* #logo-coin-container */}
 

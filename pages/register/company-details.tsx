@@ -11,10 +11,14 @@ export default function CompanyDetails() {
   const postcode = useRef<HTMLInputElement>(null);
   const city = useRef<HTMLInputElement>(null);
   const district = useRef<HTMLInputElement>(null);
-  const state = useRef<HTMLInputElement>(null);
+  const state = useRef<HTMLSelectElement>(null);
 
   const proceed = (e: React.FormEvent) => {
     e.preventDefault();
+    if (state.current.value === '') {
+      alert('Please select state');
+      return;
+    }
     const register: Profile = JSON.parse(localStorage.getItem('register'));
     if (register.companyDetails) {
       register.companyDetails.address = {
@@ -72,17 +76,6 @@ export default function CompanyDetails() {
           <label className="label">Company name</label>
           <input required className="input" ref={name} type="text"/>
         </div>
-{/* 
-        <div>
-          <label className="label">Credential upload</label>
-          <p className="mt-1 text-sm">CIDB or Trading license certificate</p>
-          
-          <div className="relative flex flex-col items-center bg-input-bg border-[1px] border-light-gray rounded-md py-3 mt-1">
-            <Image src="/upload.svg" alt="upload" width={50} height={53}/>
-            <h4 className="text-gray font-semibold mt-1">Click here to upload</h4>
-            <input ref={credential} className="absolute bg-pink-200 h-full top-0 opacity-0" type="file"/>
-          </div>
-        </div> */}
 
         <section id="address">
           <h2 className="mt-2">Company address</h2>
@@ -114,7 +107,25 @@ export default function CompanyDetails() {
 
           <div className="mt-1">
             <label className="label">State</label>
-            <input required className="input" ref={state} type="text"/>
+            <select className="select" ref={state}>
+              <option value="">Select state</option>
+              <option value="JHR">Johor</option>
+              <option value="KDH">Kedah</option>
+              <option value="KTN">Kelantan</option>
+              <option value="KUL">Kuala Lumpur</option>
+              <option value="LBN">Labuan</option>
+              <option value="MLK">Melaka</option>
+              <option value="NSN">Negeri Sembilan</option>
+              <option value="PHG">Pahang</option>
+              <option value="PJY">Putrajaya</option>
+              <option value="PLS">Perlis</option>
+              <option value="PNG">Pulau Pinang</option>
+              <option value="PRK">Perak</option>
+              <option value="SBH">Sabah</option>
+              <option value="SGR">Selangor</option>
+              <option value="SRW">Sarawak</option>
+              <option value="TRG">Terengganu</option>
+            </select>
           </div>
 
         </section>

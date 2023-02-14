@@ -1,12 +1,19 @@
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
+import AppContext from '../context/app';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface login {
+  user_id: number;
+  token: string;
+}
+
 export default function Login() {
-  const emailContactNo = useRef();
-  const password = useRef();
-  const [rememberMe, setRememberMe] = useState(true);
+  const context = useContext(AppContext);
+  const emailContactNo = useRef<HTMLInputElement>(null);
+  const password = useRef<HTMLInputElement>(null);
+  const [rememberMe, setRememberMe] = useState<boolean>(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -14,6 +21,32 @@ export default function Login() {
       router.push('/');
     }
   }, []);
+
+  const login = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      context.loading.dispatch({type: 'ON'});
+      const login = await fetch(`${process.env.HOST}/login?ec=${emailContactNo.current.value}&p=${password.current.value}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      context.loading.dispatch({type: 'OFF'});
+      if (login.status === 404) {
+        alert('User not exists, please enter correct email or contact no');
+        return;
+      } else if (login.status === 401) {
+        alert('Incorrect password, please try again');
+        return;
+      }
+      const res: login = await login.json();
+      if (rememberMe) {
+        localStorage.setItem('user_id', res.user_id.toString());
+      }
+      localStorage.setItem('token', res.token);
+      router.push('/jobs');
+    }catch(err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
 
   return (
     <main>
@@ -23,7 +56,7 @@ export default function Login() {
 
         <h1 className="text-2xl mt-2">Login</h1>
 
-        <form className="mt-2 w-10/12 space-y-2">
+        <form onSubmit={login} className="mt-2 w-10/12 space-y-2">
 
           <div>
             <label className="label">Email or Contact no</label>

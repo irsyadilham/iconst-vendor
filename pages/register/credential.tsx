@@ -29,20 +29,18 @@ export default function Credential() {
     }
     formData.append('personal_details', JSON.stringify(register.personalDetails));
     formData.append('company_details', JSON.stringify(register.companyDetails));
-    formData.append('password', JSON.stringify(register.password));
+    formData.append('password', register.password);
     try {
       context.loading.dispatch({type: 'ON'});
-      const data = await fetch(`${process.env.HOST}/vendors`, {
+      await fetch(`${process.env.HOST}/vendors`, {
         method: 'POST',
         body: formData,
         headers: {
           'Accept': 'application/json'
         }
       });
-      const response = await data.json();
       localStorage.removeItem('register');
-      localStorage.setItem('user_id', response.id);
-      router.push('/jobs');
+      router.push('/login');
       context.loading.dispatch({type: 'OFF'});
     }catch(err) {
       console.error(err);

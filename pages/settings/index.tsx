@@ -2,14 +2,26 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Back from '../../components/back';
 import Image from 'next/image';
+import { get } from '../../functions/fetch';
+import { useContext } from 'react';
+import AppContext from '../../context/app';
 
 export default function Settings() {
 
+  const context = useContext(AppContext);
   const router = useRouter();
 
-  const logout = () => {
-    localStorage.removeItem('user_id');
-    router.push('/login');
+  const logout = async () => {
+    try {
+      context.loading.dispatch({type: 'ON'});
+      await get('/logout');
+      localStorage.removeItem('user_id');
+      localStorage.removeItem('token');
+      router.push('/login');
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
   }
 
   return (
@@ -26,23 +38,23 @@ export default function Settings() {
 
         <Link href="/settings/company-details" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
           <Image src="/settings/briefcase.svg" alt="briefcase" width={23} height={23}/>
-          <p className="ml-[.9rem]">Company details</p>
+          <p className="ml-[.9rem]">Company name & address</p>
         </Link>
 
-        {/* <Link href="/settings/company-address" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
-          <Image src="/settings/address.svg" alt="address" width={18} height={21}/>
-          <p className="ml-[.9rem]">Company address</p>
-        </Link> */}
+        <Link href="/settings/services-credential" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
+          <Image src="/settings/briefcase.svg" alt="briefcase" width={23} height={23}/>
+          <p className="ml-[.9rem]">Services & credential</p>
+        </Link>
 
         <Link href="/settings/change-password" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
           <Image src="/settings/padlock.svg" alt="password" width={21} height={21}/>
           <p className="ml-[.9rem]">Change password</p>
         </Link>
 
-        <Link href="/settings/change-language" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
+        {/* <Link href="/settings/change-language" className="flex items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
           <Image src="/settings/language.svg" alt="language" width={18} height={18}/>
           <p className="ml-[.9rem]">Change language</p>
-        </Link>
+        </Link> */}
 
         <button onClick={logout} className="flex w-full items-center shadow-normal rounded-md px-[1.5rem] py-[1.2rem]">
           <Image src="/settings/logout.svg" alt="logout" width={21} height={21}/>

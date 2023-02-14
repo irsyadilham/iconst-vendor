@@ -1,8 +1,30 @@
-import { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
+import { useRouter } from 'next/router';
 import Back from '../components/back';
+import AppContext from '../context/app';
 
 export default function ForgotPassword() {
-  const emailContactNo = useRef();
+  const context = useContext(AppContext);
+  const router = useRouter();
+  const emailContactNo = useRef<HTMLInputElement>(null);
+
+  const requestResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = { email: emailContactNo.current.value };
+      context.loading.dispatch({type: 'ON'});
+      await fetch(`${process.env.HOST}/request-reset-password`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+      });
+      alert('Reset password request had been sent, please check your email. If cannot find in your inbox, check in junk or spam folder');
+      router.push('/');
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
 
   return (
     <main>
@@ -12,14 +34,14 @@ export default function ForgotPassword() {
 
         <h1 className="text-3xl mt-3">Forgot password</h1>
 
-        <form className="mt-2 space-y-2">
+        <form onSubmit={requestResetPassword} className="mt-2 space-y-2">
 
           <div>
-            <label className="label">Email or Contact no</label>
-            <input className="input" ref={emailContactNo} type="text"/>
+            <label className="label">Email</label>
+            <input className="input" ref={emailContactNo} type="email"/>
           </div>
 
-          <button className="button" type="submit">Retrieve password</button>
+          <button className="button" type="submit">Reset password</button>
 
         </form>
 

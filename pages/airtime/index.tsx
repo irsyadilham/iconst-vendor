@@ -1,0 +1,106 @@
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import AppContext from '../../context/app';
+import Back from '../../components/back';
+import { get, post } from '../../functions/fetch';
+import { gsap } from 'gsap';
+
+interface airtime {
+  id?: number;
+  validity: number;
+  price: string;
+}
+
+export default function CoinTopup() {
+  const context = useContext(AppContext);
+  const modal = useRef<HTMLDivElement>(null);
+  const [airtimes, setAirtimes] = useState<airtime[]>([]);
+  const [selectedAirtime, setSelectedAirtime] = useState<airtime | null>(null);
+
+  const getAirtimes = async () => {
+    try {
+      context.loading.dispatch({type: 'ON'});
+      const airtimes: airtime[] = await get('/airtimes');
+      setAirtimes(airtimes);
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
+
+  const selectAirtime = (value: airtime) => {
+    setSelectedAirtime(value);
+    modal.current.classList.remove('hidden');
+    modal.current.classList.add('flex');
+    gsap.to(modal.current, { opacity: 1, ease: 'power3.out' })
+  }
+
+  const cancelPurchase = () => {
+    gsap.to(modal.current, { opacity: 0, ease: 'power3.out', onComplete() {
+      setSelectedAirtime(null);
+    }});
+    setTimeout(() => {
+      modal.current.classList.remove('flex');
+      modal.current.classList.add('hidden');
+    }, 400);
+  }
+
+  const confirmPurchase = async () => {
+    try {
+      context.loading.dispatch({type: 'ON'});
+      await post(`/airtimes/${localStorage.getItem('user_id')}`, selectedAirtime);
+      cancelPurchase();
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      cancelPurchase();
+      alert('Purchase unsuccessful, please try again later');
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
+
+  useEffect(() => {
+    getAirtimes();
+  }, []);
+
+  return (
+    <main className="mx-2 pt-3 pb-2">
+      <Back text="Back"/>
+      <h2 className="text-2xl font-bold mt-2">Airtime topup</h2>
+
+      <p className="mt-1 text-sm">Select option below</p>
+
+      <section className="mt-1 space-y-[1.2em]">
+        {airtimes.map((airtime, i) => {
+          return (
+            <button onClick={() => selectAirtime(airtime)} key={i} className="flex w-full justify-between items-center bg-white shadow-normal p-[1.5em] rounded-md">
+
+              <h4 className="text-gray">{airtime.validity} days</h4>
+
+              <h4 className="text-primary">RM{airtime.price}</h4>
+
+            </button>
+          );
+        })}
+
+      </section>
+
+      <section ref={modal} id="confirm" className="fixed left-0 top-0 bg-black/50 w-full h-screen hidden opacity-0 items-center justify-center">
+        
+        <div className="p-2 bg-white rounded-md w-8/12">
+          <h3 className="text-lg text-primary">Confirm purchase</h3>
+          {(() => {
+            if (selectedAirtime) {
+              return <p className="mt-[.7em]">Are you sure to purchase an airtime validity <span className="font-bold text-primary">{selectedAirtime.validity} days</span> for <span className="font-bold text-primary">RM{selectedAirtime.price}</span></p>;
+            }
+          })()}
+
+          <div className="flex justify-end space-x-[1.5em] mt-[1.3em]">
+            <button onClick={cancelPurchase} className="text-gray text-sm font-semibold">Cancel</button>
+            <button onClick={confirmPurchase} className="bg-primary text-white py-[.8em] px-[1.2em] text-sm rounded-md font-semibold">Confirm</button>
+          </div>
+        </div>
+
+      </section>
+      {/* #confirm */}
+    </main>
+  );
+}

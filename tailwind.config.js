@@ -9,6 +9,9 @@ module.exports = {
       'sans': ['Inter']
     },
     extend: {
+      animation: {
+        'spin-fast': 'spin .7s linear infinite'
+      },
       colors: {
         'primary': '#7C52BF',
         'gray': '#878787',

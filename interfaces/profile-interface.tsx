@@ -7,10 +7,17 @@ export interface Address {
   state: string;
 }
 
+export interface service {
+  id: number;
+  name: string;
+}
+
 export interface CompanyDetails {
+  id?: number;
   company_name?: string;
+  credential_file_url?: string;
   address?: Address;
-  services?: string[];
+  services?: service[];
 }
 
 export interface PersonalDetails {

@@ -1,25 +1,25 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import Back from '../../components/back';
-import Profile, { service } from '../../interfaces/profile-interface';
 import { get } from '../../functions/fetch';
+import AppContext from '../../context/app';
+import { CompanyDetails, service } from '../../interfaces/profile-interface';
 
-export default function Services() {
-  const router = useRouter();
+interface File {
+  file?: any;
+  url: string;
+}
+
+export default function ServicesCredential() {
+  const context = useContext(AppContext);
+  const [id, setId] = useState<number>(0);
   const [services, setServices] = useState<service[]>([]);
-  const [listServices, setListServices] = useState<service[]>([]);
   const listServicesContainer = useRef();
   const listServicesWrapper = useRef();
-
-  const proceed = (e: React.FormEvent) => {
-    e.preventDefault();
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
-    register.companyDetails.services = services;
-    localStorage.setItem('register', JSON.stringify(register));
-    router.push('/register/credential');
-  }
+  const credential = useRef<HTMLInputElement>(null);
+  const [credentialFile, setCredentialFile] = useState<File | null>(null);
+  const [listServices, setListServices] = useState<service[]>([]);
 
   //open services selection
   //assign to "Add service" button
@@ -82,9 +82,25 @@ export default function Services() {
     return !check ? 'opacity-0' : '';
   }
 
+  const getVendor =  async () => {
+    try {
+      context.loading.dispatch({type: 'ON'});
+      const userId = localStorage.getItem('user_id');
+      const data: CompanyDetails = await get(`/vendors/user/${userId}`);
+      setServices(data.services);
+      if (data.credential_file_url) {
+        setCredentialFile({url: `${process.env.HOST}/${data.credential_file_url}`});
+      }
+      setId(data.id);
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
+
   const getServiceTypes = async () => {
     try {
-      const services: service[] = await get('/service-types');
+      const services = await get('/service-types');
       setListServices(services);
     } catch (err) {
       
@@ -92,21 +108,53 @@ export default function Services() {
   }
 
   useEffect(() => {
+    getVendor();
     getServiceTypes();
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
-    if (register.companyDetails.services) {
-      setServices(register.companyDetails.services);
-    }
   }, []);
+
+  const upload = () => {
+    if (credential.current.files.length > 0) {
+      const file = credential.current.files[0];
+      setCredentialFile({
+        file,
+        url: URL.createObjectURL(file)
+      });
+    }
+  }
+
+  const triggerUpload = () => {
+    credential.current.click();
+  }
+
+  const update = async () => {
+    try {
+      const formData = new FormData();
+      if (credentialFile.file) {
+        formData.append('credential', credentialFile.file);
+      }
+      formData.append('services', JSON.stringify(services));
+      context.loading.dispatch({type: 'ON'});
+      await fetch(`${process.env.HOST}/vendors/${id}/services-credential`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }});
+      context.loading.dispatch({type: 'OFF'});
+    } catch (err) {
+      context.loading.dispatch({type: 'OFF'});
+    }
+  }
 
   return (
     <main>
 
       <section className="pt-3 pb-2 px-2">
 
-        <Back text="Company details"/>
+        <Back text="Settings"/>
 
-        <h1 className="text-2xl mt-3">Register account</h1>
+        <h1 className="text-2xl mt-3">Services & credential</h1>
 
         <div className="mt-2 flex justify-between">
           <h2>Service types</h2>
@@ -140,19 +188,43 @@ export default function Services() {
                       </div>
                     )
                   })}
-
-                  <button onClick={proceed} className="button !mt-3">Proceed</button>
       
                 </section>
               )
             }
           })()}
+
+          <section id="credential" className="mt-2">
+            <h4>Credential</h4>
+
+            <div className="relative flex flex-col items-center bg-input-bg border-[1px] border-light-gray rounded-md py-3 mt-1">
+              <div className="absolute top-0 left-0 z-10 w-full h-full flex justify-center items-center flex-col">
+                {(() => {
+                  if (credentialFile) {
+                    return (
+                      <>
+                      <button onClick={triggerUpload} className="text-gray mt-[.5em] text-sm">Click here to change</button>
+                      <a href={credentialFile.url} target="_blank" className="text-sm mt-[1.5em] text-gray font-semibold">View credential</a>
+                      </>
+                    );
+                  } else {
+                    return <button onClick={triggerUpload} className="text-gray mt-[.5em] text-sm">Click here to upload</button>;
+                  }
+                })()}
+              </div>
+              <input onChange={upload} ref={credential} className="opacity-0" type="file"/>
+            </div>
+          </section>
+          {/* #credential */}
+
+          <button onClick={update} className="button !mt-3">Proceed</button>
+
         </div>
         {/* #services-container */}
 
       </section>
 
-      <section ref={listServicesContainer} id="services-selection" className="fixed top-0 h-screen w-screen hidden overflow-y-scroll">
+      <section ref={listServicesContainer} id="services-selection" className="fixed top-0 h-screen w-screen hidden overflow-y-scroll z-10">
 
         <section ref={listServicesWrapper} id="service-selection-wrapper" className="max-w-[490px] p-2 bg-white box-border translate-y-[100%]">
           
