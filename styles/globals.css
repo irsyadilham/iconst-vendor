@@ -32,4 +32,8 @@
   .button {
     @apply bg-primary w-full rounded-md py-[.8rem] text-sm text-white font-semibold;
   }
+
+  .button-fitted {
+    @apply bg-primary rounded-md py-[.8rem] px-2 text-sm text-white font-semibold;
+  }
 }

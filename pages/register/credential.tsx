@@ -40,8 +40,8 @@ export default function Credential() {
         }
       });
       localStorage.removeItem('register');
-      router.push('/login');
       context.loading.dispatch({type: 'OFF'});
+      router.push('/register/completed');
     }catch(err) {
       console.error(err);
       context.loading.dispatch({type: 'OFF'});

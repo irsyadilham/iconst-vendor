@@ -1,4 +1,4 @@
-const token = (): string => {
+const token = (): string | null => {
   return localStorage.getItem('token');
 }
 

@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import AppContext from '../context/app';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getNoToken } from '../functions/fetch';
 
-interface login {
+interface response {
   user_id: number;
   token: string;
 }
@@ -26,18 +27,8 @@ export default function Login() {
     e.preventDefault();
     try {
       context.loading.dispatch({type: 'ON'});
-      const login = await fetch(`${process.env.HOST}/login?ec=${emailContactNo.current.value}&p=${password.current.value}`, {
-        headers: { 'Accept': 'application/json' }
-      });
+      const res: response = await getNoToken(`/login?ec=${emailContactNo.current.value}&p=${password.current.value}&v=true`);
       context.loading.dispatch({type: 'OFF'});
-      if (login.status === 404) {
-        alert('User not exists, please enter correct email or contact no');
-        return;
-      } else if (login.status === 401) {
-        alert('Incorrect password, please try again');
-        return;
-      }
-      const res: login = await login.json();
       if (rememberMe) {
         localStorage.setItem('user_id', res.user_id.toString());
       }
@@ -45,6 +36,9 @@ export default function Login() {
       router.push('/jobs');
     }catch(err) {
       context.loading.dispatch({type: 'OFF'});
+      // const res = await err.json();
+      // alert(res.message);
+      console.log(err);
     }
   }
 

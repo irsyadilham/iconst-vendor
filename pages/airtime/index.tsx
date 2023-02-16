@@ -47,10 +47,14 @@ export default function CoinTopup() {
   const confirmPurchase = async () => {
     try {
       context.loading.dispatch({type: 'ON'});
-      await post(`/airtimes/${localStorage.getItem('user_id')}`, selectedAirtime);
+      const res = await post(`/airtimes-purchase`, selectedAirtime);
+      window.open(`https://dev.toyyibpay.com/${res.billcode}`);
       cancelPurchase();
       context.loading.dispatch({type: 'OFF'});
     } catch (err) {
+      if (!err.ok) {
+        console.log('error = ', await err.json());
+      }
       cancelPurchase();
       alert('Purchase unsuccessful, please try again later');
       context.loading.dispatch({type: 'OFF'});
