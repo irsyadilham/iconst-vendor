@@ -19,7 +19,8 @@ export default function Home({children}) {
       const vendor = await get(`/vendors/user/${userId}`);
       setAirtimeStatus(vendor.airtime_status);
     } catch (err) {
-      console.log('error = ', await err.json());
+      console.log(err);
+      // console.log('error = ', await err.json());
     }
   }
 

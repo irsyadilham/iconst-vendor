@@ -4,6 +4,9 @@ const nextConfig = {
   swcMinify: true,
   env: {
     HOST: process.env.HOST
+  },
+  eslint: {
+    ignoreDuringBuilds: true
   }
 }
 

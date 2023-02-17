@@ -36,9 +36,8 @@ export default function Login() {
       router.push('/jobs');
     }catch(err) {
       context.loading.dispatch({type: 'OFF'});
-      // const res = await err.json();
-      // alert(res.message);
-      console.log(err);
+      const res = await err.json();
+      alert(res.message);
     }
   }
 
