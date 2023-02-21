@@ -10,7 +10,7 @@ export default function ThankYou() {
   const counter = useRef<HTMLSpanElement>(null);
   
   const closeWindow = () => {
-    window.close();
+    router.push('/jobs');
   }
 
   const submitResult = async () => {
