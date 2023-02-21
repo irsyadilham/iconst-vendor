@@ -56,7 +56,7 @@ export default function Home({children}) {
           <Link href="/notifications" className="mr-[.8em]">
             <Image className="w-[1.3em]" src="/notification.svg" alt="notification" width={20} height={21}/>
           </Link>
-          <Link href="settings">
+          <Link href="/settings">
             <Image className="w-[1.3em]" src="/settings.svg" alt="settings" width={23} height={23}/>
           </Link>
         </div>

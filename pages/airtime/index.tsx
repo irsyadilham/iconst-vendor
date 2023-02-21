@@ -51,7 +51,8 @@ export default function CoinTopup() {
     try {
       context.loading.dispatch({type: 'ON'});
       const res = await post(`/airtimes-purchase`, selectedAirtime);
-      window.open(`https://dev.toyyibpay.com/${res.billcode}`);
+      const isProd = process.env.NODE_ENV === 'production';
+      window.open(`https://${isProd ? 'toyyibpay.com' : 'dev.toyyibpay.com'}/${res.billcode}`);
       cancelPurchase();
       context.loading.dispatch({type: 'OFF'});
     } catch (err) {
