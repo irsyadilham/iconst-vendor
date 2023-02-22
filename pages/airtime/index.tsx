@@ -83,7 +83,7 @@ export default function CoinTopup() {
           return (
             <button onClick={() => selectAirtime(airtime)} key={i} className="flex w-full justify-between items-center bg-white shadow-normal p-[1.5em] rounded-md">
 
-              <h4 className="text-gray">{airtime.validity} days</h4>
+              <h4 className="text-gray">{airtime.validity === 365 ? '12' : '24'} months</h4>
 
               {(() => {
                 if (airtime.promo_active) {
