@@ -1,9 +1,12 @@
+import type { NextPage } from 'next';
 import React, { useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
-import Profile from '../../interfaces/profile-interface';
+import { getNoToken } from '../../functions/fetch';
+import type { Register } from '../../types/register';
+import type { Address } from '../../types/address';
 
-export default function CompanyDetails() {
+const CompanyDetails: NextPage = () => {
   const router = useRouter();
   const name = useRef<HTMLInputElement>(null);
   const line1 = useRef<HTMLInputElement>(null);
@@ -15,31 +18,31 @@ export default function CompanyDetails() {
 
   const proceed = (e: React.FormEvent) => {
     e.preventDefault();
-    if (state.current.value === '') {
+    if (state.current?.value === '') {
       alert('Please select state');
       return;
     }
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
+    const register: Register = JSON.parse(localStorage.getItem('register')!);
     if (register.companyDetails) {
       register.companyDetails.address = {
-        line_1: line1.current.value,
-        line_2: line2.current.value,
-        postcode: parseInt(postcode.current.value),
-        city: city.current.value,
-        district: district.current.value,
-        state: state.current.value
+        line_1: line1.current!.value,
+        line_2: line2.current!.value,
+        postcode: parseInt(postcode.current!.value),
+        city: city.current!.value,
+        district: district.current!.value,
+        state: state.current!.value
       };
-      register.companyDetails.company_name = name.current.value;
+      register.companyDetails.company_name = name.current!.value;
     } else {
       register.companyDetails = {
-        company_name: name.current.value,
+        company_name: name.current!.value,
         address: {
-          line_1: line1.current.value,
-          line_2: line2.current.value,
-          postcode: parseInt(postcode.current.value),
-          city: city.current.value,
-          district: district.current.value,
-          state: state.current.value
+          line_1: line1.current!.value,
+          line_2: line2.current!.value,
+          postcode: parseInt(postcode.current!.value),
+          city: city.current!.value,
+          district: district.current!.value,
+          state: state.current!.value
         }
       }
     }
@@ -48,18 +51,28 @@ export default function CompanyDetails() {
   }
 
   useEffect(() => {
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
+    const register: Register = JSON.parse(localStorage.getItem('register')!);
     if (register.companyDetails) {
       const compDetails = register.companyDetails;
-      name.current.value = compDetails.company_name;
-      line1.current.value = compDetails.address.line_1;
-      line2.current.value = compDetails.address.line_2;
-      postcode.current.value = compDetails.address.postcode.toString();
-      city.current.value = compDetails.address.city;
-      district.current.value = compDetails.address.district;
-      state.current.value = compDetails.address.state;
+      name.current!.value = compDetails.company_name!;
+      line1.current!.value = compDetails.address!.line_1;
+      line2.current!.value = compDetails.address!.line_2!;
+      postcode.current!.value = compDetails.address!.postcode.toString();
+      city.current!.value = compDetails.address!.city;
+      district.current!.value = compDetails.address!.district;
+      state.current!.value = compDetails.address!.state;
     }
   }, []);
+
+  const getPostcode = async () => {
+    try {
+      const address: Address = await getNoToken(`/postcode?p=${postcode.current?.value}`);
+      district.current!.value = address.district;
+      state.current!.value = address.state;
+    } catch (err: any) {
+      
+    }
+  }
 
   return (
     <main className="pt-3 pb-2 px-2">
@@ -92,12 +105,12 @@ export default function CompanyDetails() {
 
           <div className="mt-1">
             <label className="label">Postcode</label>
-            <input required className="input" ref={postcode} type="number"/>
+            <input onBlur={getPostcode} required className="input" ref={postcode} type="number"/>
           </div>
 
           <div className="mt-1">
             <label className="label">City</label>
-            <input required className="input" ref={city} type="text"/>
+            <input className="input" ref={city} type="text"/>
           </div>
 
           <div className="mt-1">
@@ -138,3 +151,5 @@ export default function CompanyDetails() {
     </main>
   );
 }
+
+export default CompanyDetails;

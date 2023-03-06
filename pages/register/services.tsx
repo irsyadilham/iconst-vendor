@@ -1,22 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
-import Profile, { service } from '../../interfaces/profile-interface';
+import type { Register } from '../../types/register';
+import type { Service } from '../../types/service';
 import { get } from '../../functions/fetch';
 
-export default function Services() {
+const Services: NextPage = () => {
   const router = useRouter();
-  const [services, setServices] = useState<service[]>([]);
-  const [listServices, setListServices] = useState<service[]>([]);
-  const listServicesContainer = useRef();
-  const listServicesWrapper = useRef();
+  const [services, setServices] = useState<Service[]>([]);
+  const [listServices, setListServices] = useState<Service[]>([]);
+  const listServicesContainer = useRef<HTMLDivElement>(null);
+  const listServicesWrapper = useRef<HTMLDivElement>(null);
 
-  const proceed = (e: React.FormEvent) => {
+  const proceed = (e: FormEvent) => {
     e.preventDefault();
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
-    register.companyDetails.services = services;
+    const register: Register = JSON.parse(localStorage.getItem('register')!);
+    register.companyDetails!.services = services;
     localStorage.setItem('register', JSON.stringify(register));
     router.push('/register/credential');
   }
@@ -38,7 +40,7 @@ export default function Services() {
   }
 
   //remove service in services array
-  const removeService = (service: service) => {
+  const removeService = (service: Service) => {
     const x = services.indexOf(service);
     setServices(state => {
       const list = [...state];
@@ -48,7 +50,7 @@ export default function Services() {
   }
 
   //select and unselect services
-  const select = (service: service) => {
+  const select = (service: Service) => {
     //check whether 
     const check = services.find(val  => {
       return val.name === service.name;
@@ -75,7 +77,7 @@ export default function Services() {
   }
 
   //If service selected checked mark appear else opacity set to 0
-  const serviceTickChecker = (service: service) => {
+  const serviceTickChecker = (service: Service) => {
     const check = services.find(val  => {
       return val.name === service.name;
     });
@@ -84,7 +86,7 @@ export default function Services() {
 
   const getServiceTypes = async () => {
     try {
-      const services: service[] = await get('/service-types');
+      const services: Service[] = await get('/service-types');
       setListServices(services);
     } catch (err) {
       
@@ -93,8 +95,8 @@ export default function Services() {
 
   useEffect(() => {
     getServiceTypes();
-    const register: Profile = JSON.parse(localStorage.getItem('register'));
-    if (register.companyDetails.services) {
+    const register: Register = JSON.parse(localStorage.getItem('register')!);
+    if (register.companyDetails?.services) {
       setServices(register.companyDetails.services);
     }
   }, []);
@@ -192,3 +194,5 @@ export default function Services() {
     </main>
   );
 }
+
+export default Services;

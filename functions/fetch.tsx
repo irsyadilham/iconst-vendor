@@ -78,6 +78,21 @@ export const postFormData = async (url: string, data: any) => {
   }
 }
 
+export const postFormDataNoToken = async (url: string, data: any) => {
+  try {
+    const req = await fetch(`${process.env.HOST}${url}`, {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Accept': 'application/json'
+      }});
+    if (!req.ok) throw req;
+    return await req.json();
+  } catch (err) {
+    throw err;
+  }
+}
+
 export const put = async (url: string, data: any) => {
   try {
     const req = await fetch(`${process.env.HOST}${url}`, {

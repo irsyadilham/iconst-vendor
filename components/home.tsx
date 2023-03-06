@@ -1,31 +1,43 @@
-import { useState, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import { get } from '../functions/fetch';
 
-interface airtimeStatus {
+type airtimeStatus = {
   active: boolean;
   expired_date: string | null;
 }
 
-export default function Home({children}) {
+type res = {
+  airtime_status: airtimeStatus;
+  unread_notifications: boolean;
+}
+
+type args = {
+  children: ReactNode;
+}
+
+const Home: NextPage<args> = ({children}) => {
 
   const router = useRouter();
   const [airtimeStatus, setAirtimeStatus] = useState<airtimeStatus>({active: false, expired_date: null});
+  const [unreadNotifications, setUnreadNotifications] = useState<boolean>(false);
 
-  const getVendor = async (userId: string) => {
+  const getAirtimeNotificationStatus = async () => {
     try {
-      const vendor = await get(`/vendors/user/${userId}`);
-      setAirtimeStatus(vendor.airtime_status);
-    } catch (err) {
-
+      const res: res = await get('/vendor-airtime-notification-status');
+      setAirtimeStatus(res.airtime_status);
+      setUnreadNotifications(res.unread_notifications);
+    } catch (err: any) {
+      // alert('Failed to get vendor details, please try again later');
     }
   }
 
   useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    getVendor(userId);
+    getAirtimeNotificationStatus();
+    const userId = localStorage.getItem('user_id')!;
     if (!userId) {
       router.push('/login');
     }
@@ -52,8 +64,13 @@ export default function Home({children}) {
         {/* #logo-coin-container */}
 
         <div id="notification-and-settings" className="flex items-center">
-          <Link href="/notifications" className="mr-[.8em]">
+          <Link href="/notifications" className="mr-[.8em] relative">
             <Image className="w-[1.3em]" src="/notification.svg" alt="notification" width={20} height={21}/>
+            {(() => {
+              if (unreadNotifications) {
+                return <div className="w-[.6em] h-[.6em] rounded-full bg-primary ml-[.3em] absolute top-0 right-0"/>
+              }
+            })()}
           </Link>
           <Link href="/settings">
             <Image className="w-[1.3em]" src="/settings.svg" alt="settings" width={23} height={23}/>
@@ -73,3 +90,5 @@ export default function Home({children}) {
     </main>
   );
 }
+
+export default Home;

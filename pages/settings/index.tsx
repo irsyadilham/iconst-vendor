@@ -1,3 +1,4 @@
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Back from '../../components/back';
@@ -6,21 +7,22 @@ import { get } from '../../functions/fetch';
 import { useContext } from 'react';
 import AppContext from '../../context/app';
 
-export default function Settings() {
+const Settings: NextPage = () => {
 
   const context = useContext(AppContext);
   const router = useRouter();
 
   const logout = async () => {
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       await get('/logout');
       localStorage.removeItem('user_id');
       localStorage.removeItem('token');
       router.push('/login');
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      alert('Failed to logout, please try again later');
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -66,3 +68,5 @@ export default function Settings() {
     </main>
   );
 }
+
+export default Settings;

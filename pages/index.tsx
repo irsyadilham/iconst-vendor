@@ -1,7 +1,8 @@
+import type { NextPage } from 'next';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-export default function Home() {
+const Home: NextPage = () => {
 
   const router = useRouter();
 
@@ -16,3 +17,5 @@ export default function Home() {
 
   return <main/>;
 }
+
+export default Home;

@@ -1,10 +1,11 @@
+import type { NextPage } from 'next';
 import { useEffect, useContext, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { gsap } from 'gsap';
 import { put } from '../../functions/fetch';
 import AppContext from '../../context/app';
 
-export default function ThankYou() {
+const ThankYou: NextPage = () => {
   const router = useRouter();
   const context = useContext(AppContext);
   const counter = useRef<HTMLSpanElement>(null);
@@ -17,11 +18,11 @@ export default function ThankYou() {
     const orderId = router.query.order_id;
     const statusId = router.query.status_id;
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       await put(`/airtimes/${orderId}`, { status_id: parseInt(statusId as string) });
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err: any) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -53,3 +54,5 @@ export default function ThankYou() {
     </main>
   );
 }
+
+export default ThankYou;

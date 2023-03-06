@@ -1,9 +1,10 @@
+import type { NextPage } from 'next';
 import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { gsap } from 'gsap';
 
-export default function Completed() {
+const Completed: NextPage = () => {
   const counter = useRef<HTMLSpanElement>(null);
   const router = useRouter();
 
@@ -29,3 +30,5 @@ export default function Completed() {
     </main>
   );
 }
+
+export default Completed;

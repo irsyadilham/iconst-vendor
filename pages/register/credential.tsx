@@ -1,29 +1,31 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
-import Profile from '../../interfaces/profile-interface';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useEffect, useState, useContext } from 'react';
+import { Register } from '../../types/register';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
 import AppContext from '../../context/app';
+import { postFormDataNoToken } from '../../functions/fetch';
 
-interface File {
+type File = {
   file: any;
   url: string;
 }
 
-export default function Credential() {
+const Credential: NextPage = () => {
   const context = useContext(AppContext);
   const router = useRouter();
   const credential = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
-  interface data extends Profile {
+  interface data extends Register {
     password: string;
   }
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
-    const register: data = JSON.parse(localStorage.getItem('register'));
+    const register: data = JSON.parse(localStorage.getItem('register')!);
     if (file) {
       formData.append('credential', file.file);
     }
@@ -31,35 +33,29 @@ export default function Credential() {
     formData.append('company_details', JSON.stringify(register.companyDetails));
     formData.append('password', register.password);
     try {
-      context.loading.dispatch({type: 'ON'});
-      await fetch(`${process.env.HOST}/vendors`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      context?.loading.dispatch({type: 'ON'});
+      await postFormDataNoToken('/vendors', formData);
       localStorage.removeItem('register');
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
       router.push('/register/completed');
-    }catch(err) {
-      console.error(err);
-      context.loading.dispatch({type: 'OFF'});
+    }catch(err: any) {
+      alert('Failed to submit application, please try again later');
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
   const upload = () => {
-    if (credential.current.files.length > 0) {
-      const file = credential.current.files[0];
+    if (credential.current?.files!.length! > 0) {
+      const file = credential.current?.files![0];
       setFile({
         file,
-        url: URL.createObjectURL(file)
+        url: URL.createObjectURL(file!)
       })
     }
   }
 
   const update = () => {
-    credential.current.click();
+    credential.current?.click();
   }
 
   useEffect(() => {
@@ -84,7 +80,7 @@ export default function Credential() {
                 <div className="relative flex flex-col items-center bg-input-bg border-[1px] border-light-gray rounded-md py-3 mt-1">
                   <div className="absolute top-0 left-0 z-10 w-full h-full flex justify-center items-center flex-col">
                     <h4 className="text-gray">{file.file.name}</h4>
-                    <button onClick={update} className="text-gray mt-[.5em] text-sm">Click to change</button>
+                    <button type="button" onClick={update} className="text-gray mt-[.5em] text-sm">Click to change</button>
                     <a href={file.url} target="_blank" className="text-sm mt-[.5em] text-gray font-semibold">Download</a>
                   </div>
                   <input onChange={upload} ref={credential} className="opacity-0" type="file"/>
@@ -110,3 +106,5 @@ export default function Credential() {
     </main>
   );
 }
+
+export default Credential;

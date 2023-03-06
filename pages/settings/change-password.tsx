@@ -1,38 +1,39 @@
-import React, { useRef, useContext } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useContext } from 'react';
 import Back from '../../components/back';
 import AppContext from '../../context/app';
 import { put } from '../../functions/fetch';
 
-export default function ChangePassword() {
+const ChangePassword: NextPage = () => {
   const context = useContext(AppContext);
   const password = useRef<HTMLInputElement>(null);
   const newPassword = useRef<HTMLInputElement>(null);
   const confirmPassword = useRef<HTMLInputElement>(null);
 
-  const changePassword = async (e: React.FormEvent) => {
+  const changePassword = async (e: FormEvent) => {
     e.preventDefault();
-    if (newPassword.current.value !== confirmPassword.current.value) {
+    if (newPassword.current?.value !== confirmPassword.current?.value) {
       alert('New password does not match with confirm password');
       return;
     }
     try {
       const data = {
-        password: password.current.value,
-        newPassword: newPassword.current.value
+        password: password.current?.value,
+        newPassword: newPassword.current?.value
       };
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const res = await put('/change-password', data);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
       if (res.message === 'Password not match') {
         alert('Incorrect password, please try again');
         return;
       }
-      password.current.value = '';
-      newPassword.current.value = '';
-      confirmPassword.current.value = '';
+      password.current!.value = '';
+      newPassword.current!.value = '';
+      confirmPassword.current!.value = '';
       alert('successfully change password');
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -59,3 +60,5 @@ export default function ChangePassword() {
     </main>
   );
 }
+
+export default ChangePassword;

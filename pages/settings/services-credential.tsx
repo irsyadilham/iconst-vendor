@@ -1,25 +1,27 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import type { NextPage } from 'next';
+import { useRef, useState, useEffect, useContext } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import Back from '../../components/back';
 import { get } from '../../functions/fetch';
 import AppContext from '../../context/app';
-import { CompanyDetails, service } from '../../interfaces/profile-interface';
+import type { CompanyDetails } from '../../types/register';
+import type { Service } from '../../types/service';
 
-interface File {
+type File = {
   file?: any;
   url: string;
 }
 
-export default function ServicesCredential() {
+const ServicesCredential: NextPage = () => {
   const context = useContext(AppContext);
   const [id, setId] = useState<number>(0);
-  const [services, setServices] = useState<service[]>([]);
-  const listServicesContainer = useRef();
-  const listServicesWrapper = useRef();
+  const [services, setServices] = useState<Service[]>([]);
+  const listServicesContainer = useRef<HTMLDivElement>(null);
+  const listServicesWrapper = useRef<HTMLDivElement>(null);
   const credential = useRef<HTMLInputElement>(null);
   const [credentialFile, setCredentialFile] = useState<File | null>(null);
-  const [listServices, setListServices] = useState<service[]>([]);
+  const [listServices, setListServices] = useState<Service[]>([]);
 
   //open services selection
   //assign to "Add service" button
@@ -38,7 +40,7 @@ export default function ServicesCredential() {
   }
 
   //remove service in services array
-  const removeService = (service: service) => {
+  const removeService = (service: Service) => {
     const x = services.indexOf(service);
     setServices(state => {
       const list = [...state];
@@ -48,7 +50,7 @@ export default function ServicesCredential() {
   }
 
   //select and unselect services
-  const select = (service: service) => {
+  const select = (service: Service) => {
     //check whether 
     const check = services.find(val  => {
       return val.name === service.name;
@@ -75,7 +77,7 @@ export default function ServicesCredential() {
   }
 
   //If service selected checked mark appear else opacity set to 0
-  const serviceTickChecker = (service: service) => {
+  const serviceTickChecker = (service: Service) => {
     const check = services.find(val  => {
       return val.name === service.name;
     });
@@ -84,17 +86,17 @@ export default function ServicesCredential() {
 
   const getVendor =  async () => {
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const userId = localStorage.getItem('user_id');
       const data: CompanyDetails = await get(`/vendors/user/${userId}`);
-      setServices(data.services);
+      setServices(data.services!);
       if (data.credential_file_url) {
         setCredentialFile({url: `${process.env.HOST}/${data.credential_file_url}`});
       }
-      setId(data.id);
-      context.loading.dispatch({type: 'OFF'});
+      setId(data.id!);
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -113,27 +115,27 @@ export default function ServicesCredential() {
   }, []);
 
   const upload = () => {
-    if (credential.current.files.length > 0) {
-      const file = credential.current.files[0];
+    if (credential.current?.files!.length! > 0) {
+      const file = credential.current?.files![0];
       setCredentialFile({
         file,
-        url: URL.createObjectURL(file)
+        url: URL.createObjectURL(file!)
       });
     }
   }
 
   const triggerUpload = () => {
-    credential.current.click();
+    credential.current?.click();
   }
 
   const update = async () => {
     try {
       const formData = new FormData();
-      if (credentialFile.file) {
+      if (credentialFile?.file) {
         formData.append('credential', credentialFile.file);
       }
       formData.append('services', JSON.stringify(services));
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       await fetch(`${process.env.HOST}/vendors/${id}/services-credential`, {
         method: 'POST',
         body: formData,
@@ -141,9 +143,9 @@ export default function ServicesCredential() {
           'Accept': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }});
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -264,3 +266,5 @@ export default function ServicesCredential() {
     </main>
   );
 }
+
+export default ServicesCredential;

@@ -1,7 +1,8 @@
+import type { NextPage } from 'next';
 import { useRef } from 'react';
 import Back from '../../components/back';
 
-export default function ChangePassword() {
+const ChangePassword: NextPage = () => {
   const language = useRef<HTMLSelectElement>(null);
 
   return (
@@ -22,3 +23,5 @@ export default function ChangePassword() {
     </main>
   );
 }
+
+export default ChangePassword;

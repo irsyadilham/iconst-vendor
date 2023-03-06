@@ -1,33 +1,32 @@
-import React, { useRef, useContext } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useContext } from 'react';
 import { useRouter } from 'next/router';
 import AppContext from '../context/app';
+import { put } from '../functions/fetch';
 
-export default function ResetPassword() {
+const ResetPassword: NextPage = () => {
   const context = useContext(AppContext);
   const router = useRouter();
   const password = useRef<HTMLInputElement>(null);
   const confirmPassword = useRef<HTMLInputElement>(null);
 
-  const resetPassword = async (e: React.FormEvent) => {
+  const resetPassword = async (e: FormEvent) => {
     e.preventDefault();
     const id = router.query.user_id;
-    if (password.current.value !== confirmPassword.current.value) {
+    if (password.current?.value !== confirmPassword.current?.value) {
       alert('Password not match, make sure confirm password same as password');
       return;
     }
     try {
-      const data = { password: password.current.value };
-      context.loading.dispatch({type: 'ON'});
-      await fetch(`${process.env.HOST}/reset-password/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
-      });
-      context.loading.dispatch({type: 'OFF'});
+      const data = { password: password.current?.value };
+      context?.loading.dispatch({type: 'ON'});
+      await put(`/reset-password/${id}`, data);
+      context?.loading.dispatch({type: 'OFF'});
       alert('Successfully reset password');
       window.close();
-    } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+    } catch (err: any) {
+      context?.loading.dispatch({type: 'OFF'});
+      alert('Failed to reset password, please try again later');
     }
   }
 
@@ -53,3 +52,5 @@ export default function ResetPassword() {
     </main>
   );
 }
+
+export default ResetPassword;

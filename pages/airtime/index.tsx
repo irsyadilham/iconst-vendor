@@ -1,3 +1,4 @@
+import type { NextPage } from 'next';
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import AppContext from '../../context/app';
 import Back from '../../components/back';
@@ -13,7 +14,7 @@ type airtime = {
   hide: boolean;
 }
 
-export default function CoinTopup() {
+const AirtimeTopUp: NextPage = () => {
   const context = useContext(AppContext);
   const modal = useRef<HTMLDivElement>(null);
   const [airtimes, setAirtimes] = useState<airtime[]>([]);
@@ -21,19 +22,19 @@ export default function CoinTopup() {
 
   const getAirtimes = async () => {
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const airtimes: airtime[] = await get('/airtimes');
       setAirtimes(airtimes);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
   const selectAirtime = (value: airtime) => {
     setSelectedAirtime(value);
-    modal.current.classList.remove('hidden');
-    modal.current.classList.add('flex');
+    modal.current?.classList.remove('hidden');
+    modal.current?.classList.add('flex');
     gsap.to(modal.current, { opacity: 1, ease: 'power3.out' })
   }
 
@@ -42,21 +43,20 @@ export default function CoinTopup() {
       setSelectedAirtime(null);
     }});
     setTimeout(() => {
-      modal.current.classList.remove('flex');
-      modal.current.classList.add('hidden');
+      modal.current?.classList.remove('flex');
+      modal.current?.classList.add('hidden');
     }, 400);
   }
 
   const confirmPurchase = async () => {
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const res = await post(`/airtimes-purchase`, selectedAirtime);
-      const isProd = process.env.NODE_ENV === 'production';
-      window.open(`https://${isProd ? 'toyyibpay.com' : 'dev.toyyibpay.com'}/${res.billcode}`);
+      window.open(`${process.env.TOYYIBPAY_URL}/${res.billcode}`, '_self');
       cancelPurchase();
-      context.loading.dispatch({type: 'OFF'});
-    } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
+    } catch (err: any) {
+      context?.loading.dispatch({type: 'OFF'});
       cancelPurchase();
       if (err.status === 400) {
         const data = await err.json();
@@ -128,3 +128,5 @@ export default function CoinTopup() {
     </main>
   );
 }
+
+export default AirtimeTopUp;

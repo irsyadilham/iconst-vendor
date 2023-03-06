@@ -1,16 +1,17 @@
-import React, { useRef, useState, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
 
-export default function CoverageArea() {
+const CoverageArea: NextPage = () => {
   const router = useRouter();
-  const [locations, setLocations] = useState([]);
-  const selectAreaContainer = useRef();
-  const selectAreaWrapper = useRef();
+  const [locations, setLocations] = useState<string[]>([]);
+  const selectAreaContainer = useRef<HTMLDivElement>(null);
+  const selectAreaWrapper = useRef<HTMLDivElement>(null);
 
-  const proceed = (e: React.FormEvent) => {
+  const proceed = (e: FormEvent) => {
     e.preventDefault();
     router.push('/register/password');
   }
@@ -133,3 +134,5 @@ export default function CoverageArea() {
     </main>
   );
 }
+
+export default CoverageArea;

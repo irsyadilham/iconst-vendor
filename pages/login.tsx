@@ -1,16 +1,17 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import AppContext from '../context/app';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getNoToken } from '../functions/fetch';
 
-interface response {
+type response = {
   user_id: number;
   token: string;
 }
 
-export default function Login() {
+const Login: NextPage = () => {
   const context = useContext(AppContext);
   const emailContactNo = useRef<HTMLInputElement>(null);
   const password = useRef<HTMLInputElement>(null);
@@ -23,19 +24,19 @@ export default function Login() {
     }
   }, []);
 
-  const login = async (e: React.FormEvent) => {
+  const login = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      context.loading.dispatch({type: 'ON'});
-      const res: response = await getNoToken(`/login?ec=${emailContactNo.current.value}&p=${password.current.value}&v=true`);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'ON'});
+      const res: response = await getNoToken(`/login?ec=${emailContactNo.current?.value}&p=${password.current?.value}&v=true`);
+      context?.loading.dispatch({type: 'OFF'});
       if (rememberMe) {
         localStorage.setItem('user_id', res.user_id.toString());
       }
       localStorage.setItem('token', res.token);
       router.push('/jobs');
-    }catch(err) {
-      context.loading.dispatch({type: 'OFF'});
+    }catch(err: any) {
+      context?.loading.dispatch({type: 'OFF'});
       const res = await err.json();
       alert(res.message);
     }
@@ -92,3 +93,5 @@ export default function Login() {
     </main>
   );
 }
+
+export default Login;

@@ -1,15 +1,18 @@
-import React, { useRef, useEffect, useContext, useState } from 'react';
+import type { NextPage } from 'next';
+import Image from 'next/image';
+import { FormEvent, useRef, useEffect, useContext, useState } from 'react';
 import Back from '../../components/back';
-import { CompanyDetails, Address } from '../../interfaces/profile-interface';
+import type { CompanyDetails } from '../../types/register';
+import type { Address } from '../../types/address';
 import AppContext from '../../context/app';
 import { get, put } from '../../functions/fetch';
 
-interface data {
+type data = {
   company_name: string;
   address: Address;
 }
 
-export default function CompanyAddress() {
+const CompanyAddress: NextPage = () => {
 
   const [id, setId] = useState<number>(0);
   const context = useContext(AppContext);
@@ -20,24 +23,26 @@ export default function CompanyAddress() {
   const city = useRef<HTMLInputElement>(null);
   const district = useRef<HTMLInputElement>(null);
   const state = useRef<HTMLSelectElement>(null);
+  const [rating, setRating] = useState<number>(0);
 
   const getCompanyDetails = async () => {
     try {
       const userId = localStorage.getItem('user_id');
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const res: CompanyDetails = await get(`/vendors/user/${userId}`);
-      context.loading.dispatch({type: 'OFF'});
-      setId(res.id);
-      companyName.current.value = res.company_name;
+      context?.loading.dispatch({type: 'OFF'});
+      setId(res.id!);
+      companyName.current!.value = res.company_name!;
       const address = res.address;
-      line1.current.value = address.line_1;
-      line2.current.value = address.line_2;
-      postcode.current.value = address.postcode.toString();
-      city.current.value = address.city;
-      district.current.value = address.district;
-      state.current.value = address.state;
+      line1.current!.value = address!.line_1;
+      line2.current!.value = address?.line_2!;
+      postcode.current!.value = address!.postcode.toString();
+      city.current!.value = address!.city;
+      district.current!.value = address!.district;
+      state.current!.value = address!.state;
+      setRating(res.rating!);
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -45,25 +50,25 @@ export default function CompanyAddress() {
     getCompanyDetails();
   }, []);
 
-  const update = async (e: React.FormEvent) => {
+  const update = async (e: FormEvent) => {
     e.preventDefault();
     const data: data = {
-      company_name: companyName.current.value,
+      company_name: companyName.current!.value,
       address: {
-        line_1: line1.current.value,
-        line_2: line2.current.value,
-        postcode: parseInt(postcode.current.value),
-        city: city.current.value,
-        district: district.current.value,
-        state: state.current.value,
+        line_1: line1.current!.value,
+        line_2: line2.current!.value,
+        postcode: parseInt(postcode.current!.value),
+        city: city.current!.value,
+        district: district.current!.value,
+        state: state.current!.value,
       }
     }
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       await put(`/vendors/${id}`, data);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
       console.error(err);
     }
   }
@@ -73,6 +78,21 @@ export default function CompanyAddress() {
       <Back text="Settings"/>
 
       <h2 className="mt-2 text-2xl font-bold">Company details</h2>
+
+      <p className="mt-1 text-[.8rem]">Your rating</p>
+      {(() => {
+        if (rating === 0) {
+          return <p className="mt-[.3em]">No rating</p>
+        } else {
+          return (
+            <div className="flex space-x-[.5em] mt-[.5em]">
+              {Array(rating).fill('').map((_, i) => {
+                return <Image key={i} src="/star.svg" alt="star" width={15} height={15}/>;
+              })}
+            </div>
+          )
+        }
+      })()}
 
       <form onSubmit={update} className="mt-2">
 
@@ -130,3 +150,5 @@ export default function CompanyAddress() {
     </main>
   );
 }
+
+export default CompanyAddress;

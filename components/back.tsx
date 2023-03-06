@@ -1,11 +1,12 @@
+import type { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-interface args {
+type args = {
   text: string;
 }
 
-export default function Back({text}: args) {
+const Back: NextPage<args> = ({text}) => {
   const router = useRouter();
 
   return (
@@ -15,3 +16,5 @@ export default function Back({text}: args) {
     </section>
   );
 }
+
+export default Back;

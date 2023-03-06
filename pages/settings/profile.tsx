@@ -1,10 +1,11 @@
-import React, { useRef, useContext, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useContext, useEffect } from 'react';
 import Back from '../../components/back';
 import AppContext from '../../context/app';
-import { PersonalDetails } from '../../interfaces/profile-interface';
+import { PersonalDetails } from '../../types/register';
 import { get, put } from '../../functions/fetch';
 
-export default function Profile() {
+const Profile: NextPage = () => {
   const context = useContext(AppContext);
   const name = useRef<HTMLInputElement>(null);
   const email = useRef<HTMLInputElement>(null);
@@ -12,33 +13,33 @@ export default function Profile() {
 
   const getProfile = async () => {
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const userId = localStorage.getItem('user_id');
       const data: PersonalDetails = await get(`/users/${userId}`);
-      name.current.value = data.name;
-      email.current.value = data.email;
-      contactNo.current.value = data.contact_no;
-      context.loading.dispatch({type: 'OFF'});
+      name.current!.value = data.name;
+      email.current!.value = data.email;
+      contactNo.current!.value = data.contact_no;
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
       console.error(err);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
-  const update = async (e: React.FormEvent) => {
+  const update = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      context.loading.dispatch({type: 'ON'});
+      context?.loading.dispatch({type: 'ON'});
       const data: PersonalDetails = {
-        name: name.current.value,
-        email: email.current.value,
-        contact_no: contactNo.current.value,
+        name: name.current!.value,
+        email: email.current!.value,
+        contact_no: contactNo.current!.value,
       };
       const userId = localStorage.getItem('user_id');
       await put(`/users/${userId}`, data);
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     } catch (err) {
-      context.loading.dispatch({type: 'OFF'});
+      context?.loading.dispatch({type: 'OFF'});
     }
   }
 
@@ -69,3 +70,5 @@ export default function Profile() {
     </main>
   );
 }
+
+export default Profile;

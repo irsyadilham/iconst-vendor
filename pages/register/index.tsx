@@ -1,26 +1,27 @@
-import React, { useRef, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
-import Profile, { PersonalDetails } from '../../interfaces/profile-interface';
+import type { Register, PersonalDetails } from '../../types/register';
 
-export default function Register() {
+const Register: NextPage = () => {
   const router = useRouter();
   const name = useRef<HTMLInputElement>(null);
   const email = useRef<HTMLInputElement>(null);
   const contactNo = useRef<HTMLInputElement>(null);
 
   //proceed button
-  const proceed = (e: React.FormEvent) => {
+  const proceed = (e: FormEvent) => {
     e.preventDefault();
     const register = localStorage.getItem('register');
     const value: PersonalDetails = {
-      name: name.current.value,
-      email: email.current.value,
-      contact_no: contactNo.current.value
+      name: name.current!.value,
+      email: email.current!.value,
+      contact_no: contactNo.current!.value
     }
     let valToSave: any;
     if (register) {
-      const parsedData: Profile = JSON.parse(register);
+      const parsedData: Register = JSON.parse(register);
       parsedData.personalDetails = value;
       valToSave = parsedData;
     } else {
@@ -33,10 +34,10 @@ export default function Register() {
   useEffect(() => {
     const register = localStorage.getItem('register');
     if (register) {
-      const parsedData: Profile = JSON.parse(register);
-      name.current.value = parsedData.personalDetails.name;
-      email.current.value = parsedData.personalDetails.email;
-      contactNo.current.value = parsedData.personalDetails.contact_no;
+      const parsedData: Register = JSON.parse(register);
+      name.current!.value = parsedData.personalDetails!.name;
+      email.current!.value = parsedData.personalDetails!.email;
+      contactNo.current!.value = parsedData.personalDetails!.contact_no;
     }
   }, []);
 
@@ -73,3 +74,5 @@ export default function Register() {
     </main>
   );
 }
+
+export default Register;

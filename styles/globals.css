@@ -36,4 +36,8 @@
   .button-fitted {
     @apply bg-primary rounded-md py-[.8rem] px-2 text-sm text-white font-semibold;
   }
+
+  .status {
+    @apply text-xs text-white font-semibold px-[.8em] py-[.5em] rounded;
+  }
 }

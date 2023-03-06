@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import App from '../interfaces/app-interface';
+import type { App } from '../types/app';
 
-const AppContext = createContext<App>(null);
+const AppContext = createContext<App | null>(null);
 
 export default AppContext;

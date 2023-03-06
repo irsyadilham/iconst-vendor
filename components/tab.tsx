@@ -1,12 +1,13 @@
+import type { NextPage } from 'next';
 import Link from 'next/link';
 import Hammer from '../public/hammer';
 import Clipboard from '../public/clipboard';
 
-interface args {
+type args = {
   page: string;
 }
 
-export default function Tab({page}: args) {
+const Tab: NextPage<args> = ({page}) => {
 
   return (
     <main className="flex justify-between w-full">
@@ -21,3 +22,6 @@ export default function Tab({page}: args) {
     </main>
   );
 }
+
+
+export default Tab;

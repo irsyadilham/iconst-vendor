@@ -1,30 +1,30 @@
-import React, { useRef, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { FormEvent, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Back from '../../components/back';
-import Profile from '../../interfaces/profile-interface';
 
-export default function Password() {
+const Password: NextPage = () => {
   const router = useRouter();
   const password = useRef<HTMLInputElement>(null);
   const confirmPassword = useRef<HTMLInputElement>(null);
 
-  const proceed = (e: React.FormEvent) => {
+  const proceed = (e: FormEvent) => {
     e.preventDefault();
-    if (password.current.value !== confirmPassword.current.value) {
+    if (password.current?.value !== confirmPassword.current?.value) {
       alert('Password not matching, try again');
       return;
     }
-    const register = JSON.parse(localStorage.getItem('register'));
-    register.password = password.current.value;
+    const register = JSON.parse(localStorage.getItem('register')!);
+    register.password = password.current?.value;
     localStorage.setItem('register', JSON.stringify(register));
     router.push('/register/company-details')
   }
 
   useEffect(() => {
-    const register = JSON.parse(localStorage.getItem('register'));
+    const register = JSON.parse(localStorage.getItem('register')!);
     if (register.password) {
-      password.current.value = register.password;
-      confirmPassword.current.value = register.password;
+      password.current!.value = register.password;
+      confirmPassword.current!.value = register.password;
     }
   }, [])
 
@@ -54,3 +54,5 @@ export default function Password() {
     </main>
   );
 }
+
+export default Password;
