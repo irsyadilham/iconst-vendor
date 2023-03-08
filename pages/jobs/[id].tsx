@@ -174,7 +174,9 @@ const JobDetails: NextPage = () => {
         }
       })()}
 
-      <button onClick={openQuotationSubmission} className="button mt-2">Submit quotation</button>
+      <p className="text-xs mt-2">For inactive user the fee for each quotation submission is RM50, activate your account now for unlimited submission</p>
+
+      <button onClick={openQuotationSubmission} className="button mt-1">Submit quotation</button>
 
       <section ref={quotationFormContainer} className="fixed left-0 top-0 w-full h-screen bg-white p-2 translate-y-[100%] hidden">
 
